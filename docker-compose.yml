@@ -1,0 +1,26 @@
+version: "3.8"
+
+services:
+  docker-hadoop1:
+    image: docker-hadoop:0.0.1
+    container_name: docker-hadoop1
+    hostname: docker-hadoop1
+    environment:
+      - ZOO_MY_ID=1
+  
+  docker-hadoop2:
+    image: docker-hadoop:0.0.1
+    container_name: docker-hadoop2
+    hostname: docker-hadoop2
+    environment:
+      - ZOO_MY_ID=2
+  
+  docker-hadoop3:
+    image: docker-hadoop:0.0.1
+    container_name: docker-hadoop3
+    hostname: docker-hadoop3
+    environment:
+      - ZOO_MY_ID=3
+networks:
+  docker-hadoop:
+    driver: bridge
