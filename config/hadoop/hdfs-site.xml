@@ -6,7 +6,7 @@
     <property>
         <!-- namenode 节点数据（即元数据）的存放位置，可以指定多个目录实现容错，多个目录用逗号分隔 -->
         <name>dfs.namenode.name.dir</name>
-        <value>/home/hadoop/namenode</value>
+        <value>/data/hadoop/namenode</value>
     </property>
     <property>
         <!-- datanode 节点数据（即数据块）的存放位置 -->

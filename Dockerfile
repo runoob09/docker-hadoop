@@ -5,7 +5,7 @@ FROM ubuntu:24.04
 ENV TZ=UTC
 # 更新apt源，安装必备工具包
 RUN apt-get update &&  \
-    apt-get install -y --no-install-recommends wget tar net-tools ssh aria2 ca-certificates openssh-server rsync sshpass supervisor&& \
+    apt-get install -y --no-install-recommends wget tar net-tools ssh aria2 ca-certificates openssh-server rsync sshpass&& \
     rm -rf /var/lib/apt/lists/*
 
 # 配置软件的环境变量
@@ -60,4 +60,4 @@ RUN chmod 777 /opt/sh/start.sh && \
 # 设置volume
 VOLUME ["/opt/sh"]
 # 启动 Zookeeper
-CMD ["/opt/sh/start.sh"]
+CMD ["/bin/bash","/opt/sh/start.sh"]
