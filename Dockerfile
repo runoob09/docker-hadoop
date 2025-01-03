@@ -5,16 +5,18 @@ FROM ubuntu:24.04
 ENV TZ=UTC
 # 更新apt源，安装必备工具包
 RUN apt-get update &&  \
-    apt-get install -y --no-install-recommends wget tar net-tools ssh aria2 ca-certificates openssh-server rsync sshpass&& \
+    apt-get install -y --no-install-recommends wget tar ssh aria2 ca-certificates openssh-server rsync sshpass&& \
     rm -rf /var/lib/apt/lists/*
 
 # 配置软件的环境变量
 ENV ZOOKEEPER_VERSION=3.8.4
 ENV HADOOP_VERSION=3.2.4
+ENV HBASE_VERSION=2.6.1
 ENV ZOOKEEPER_HOME=/opt/zookeeper
 ENV JAVA_HOME=/opt/jdk
 ENV HADOOP_HOME=/opt/hadoop
-ENV PATH=$JAVA_HOME/bin:$ZOOKEEPER_HOME/bin:$HADOOP_HOME/bin:$HADOOP_HOME/sbin:$PATH
+ENV HBASE_HOME=/opt/hbase
+ENV PATH=$JAVA_HOME/bin:$ZOOKEEPER_HOME/bin:$HADOOP_HOME/bin:$HADOOP_HOME/sbin:$PATH:$HBASE_HOME/bin
 
 
 # 生成 SSH 密钥对
@@ -43,21 +45,38 @@ RUN aria2c -x16 -s16 "https://mirrors.tuna.tsinghua.edu.cn/apache/zookeeper/zook
 RUN aria2c -x16 -s16 "https://mirrors.tuna.tsinghua.edu.cn/apache/hadoop/common/hadoop-${HADOOP_VERSION}/hadoop-${HADOOP_VERSION}.tar.gz" -o /download/hadoop.tar.gz &&\
     tar -xzf /download/hadoop.tar.gz -C /opt && \
     mv /opt/hadoop-${HADOOP_VERSION} /opt/hadoop
+# 安装hbase
+RUN aria2c -x16 -s16 "https://mirrors.tuna.tsinghua.edu.cn/apache/hbase/${HBASE_VERSION}/hbase-${HBASE_VERSION}-bin.tar.gz" -o /download/hbase.tar.gz &&\
+    tar -xzf /download/hbase.tar.gz -C /opt && \
+    mv /opt/hbase-${HBASE_VERSION} /opt/hbase
+
+
+
 
 # 配置 Zookeeper 数据目录和日志目录
 RUN mkdir -p /data/zookeeper /logs/zookeeper /opt/sh /data/hadoop/datanode /data/hadoop/namenode
+
 # 添加zookeeper配置文件
 COPY ./config/zookeeper/zoo.cfg $ZOOKEEPER_HOME/conf/zoo.cfg
+
+
 # 添加hadoop配置文件
 COPY ./config/hadoop/ /opt/hadoop/etc/hadoop/
-COPY config/sh/start.sh /opt/sh/start.sh
+COPY config/sh/entrypoint.sh /opt/sh/entrypoint.sh
+
+# 配置hbase
+COPY ./config/hbase/* /opt/hbase/conf/
+COPY ./config/hadoop/core-site.xml /opt/hbase/conf/
+COPY ./config/hadoop/hdfs-site.xml /opt/hbase/conf/
+
+
 # 复制hosts文件
 COPY ./config/etc/hosts /etc
 # 给脚本添加执行权限
-RUN chmod 777 /opt/sh/start.sh && \
+RUN chmod 777 /opt/sh/entrypoint.sh && \
     rm -rf /download
 
 # 设置volume
 VOLUME ["/opt/sh"]
 # 启动 Zookeeper
-CMD ["/bin/bash","/opt/sh/start.sh"]
+CMD ["/bin/bash","/opt/sh/entrypoint.sh"]

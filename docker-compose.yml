@@ -6,7 +6,8 @@ networks:
         - subnet: 192.168.0.0/24
 services:
   docker-hadoop1:
-    image: docker-hadoop:0.0.1
+    build:
+      dockerfile: ./Dockerfile
     container_name: docker-hadoop1
     hostname: docker-hadoop1
     environment:
@@ -18,7 +19,8 @@ services:
     volumes:
       - ./config/sh:/opt/sh
   docker-hadoop2:
-    image: docker-hadoop:0.0.1
+    build:
+      dockerfile: ./Dockerfile
     container_name: docker-hadoop2
     hostname: docker-hadoop2
     environment:
@@ -30,7 +32,8 @@ services:
     volumes:
       - ./config/sh:/opt/sh
   docker-hadoop3:
-    image: docker-hadoop:0.0.1
+    build:
+      dockerfile: ./Dockerfile
     container_name: docker-hadoop3
     hostname: docker-hadoop3
     environment:
